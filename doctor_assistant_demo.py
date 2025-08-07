@@ -95,12 +95,15 @@ def chief_complaint_picker():
         data["other_text"] = st.text_input("Describe other concern")
     return data
 
-# Convert list to lowercase for easy matching
-complaint_list = [s.lower() for s in chief_complaints.get("chief_complaints", [])]
+inputs.update(complaints)
+# === CONDITIONAL SYMPTOM MODULES ===
+complaint_list = [s.lower() for s in complaints.get("chief_complaints", [])]
 
-# For each selected complaint, run its module
 if "chest pain" in complaint_list:
-    inputs["chest_pain"] = chest_pain_module()
+    inputs.update({"chest_pain": chest_pain_module()})
+
+if "sore throat / ear / sinus" in complaint_list:
+    inputs.update({"sore_throat": sore_throat_module()}
     
 # === SECTION 6: Universal Symptom History ===
 def universal_history():
