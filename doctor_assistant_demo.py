@@ -103,7 +103,7 @@ if "chest pain" in complaint_list:
     inputs.update({"chest_pain": chest_pain_module()})
 
 if "sore throat / ear / sinus" in complaint_list:
-    inputs.update({"sore_throat": sore_throat_module()}
+    inputs.update({"sore_throat": sore_throat_module()})
     
 # === SECTION 6: Universal Symptom History ===
 def universal_history():
