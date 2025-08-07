@@ -45,7 +45,7 @@ if st.button("📝 Generate Summary"):
     if not name or symptom == "Select...":
         st.warning("Please enter your name and select a main symptom.")
     else:
-        openai.api_key = os.getenv("OPENAI_API_KEY") or "sk-..."  # Replace with your key or set as env variable
+        openai.api_key = st.secrets["OPENAI_API_KEY"]  # Replace with your key or set as env variable
 
         # Prompt generation
         prompt = f"""
