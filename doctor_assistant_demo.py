@@ -87,6 +87,13 @@ def chief_complaint_picker():
         data["other_text"] = st.text_input("Describe other concern")
     return data
 
+# Convert list to lowercase for easy matching
+complaint_list = [s.lower() for s in chief_complaints.get("chief_complaints", [])]
+
+# For each selected complaint, run its module
+if "chest pain" in complaint_list:
+    inputs["chest_pain"] = chest_pain_module()
+    
 # === SECTION 6: Universal Symptom History ===
 def universal_history():
     st.subheader("7. Symptom History")
