@@ -80,47 +80,6 @@ def red_flag_gate():
         ])
     }
 
-# === SECTION 5: Chief Complaint Picker ===
-def chief_complaint_picker():
-    st.subheader("6. Chief Complaint(s)")
-    data = {}
-    data["chief_complaints"] = st.multiselect("Choose your concerns:", [
-        "Chest pain", "Shortness of breath", "Cough / Cold", "Sore throat / Ear / Sinus",
-        "Abdominal pain", "Headache / Dizziness", "Back / Joint pain", "Skin / Rash",
-        "Urine / Kidney", "Mood / Anxiety", "Child fever (<16)", "Eye / Vision",
-        "Sexual-health", "Early pregnancy", "Minor trauma / injury", "Palliative / End-of-life",
-        "Other", "Routine / Admin only"
-    ])
-    if "Other" in data["chief_complaints"]:
-        data["other_text"] = st.text_input("Describe other concern")
-    return data
-
-inputs.update(complaints)
-# === CONDITIONAL SYMPTOM MODULES ===
-complaint_list = [s.lower() for s in complaints.get("chief_complaints", [])]
-
-if "chest pain" in complaint_list:
-    inputs.update({"chest_pain": chest_pain_module()})
-
-if "sore throat / ear / sinus" in complaint_list:
-    inputs.update({"sore_throat": sore_throat_module()})
-    
-# === SECTION 6: Universal Symptom History ===
-def universal_history():
-    st.subheader("7. Symptom History")
-    data = {}
-    data["when_started"] = st.radio("When did it start?", ["Today", "1–3 d", "4–7 d", "1–4 wk", ">1 mo"])
-    data["onset"] = st.radio("Onset:", ["Sudden", "Gradual"])
-    data["change"] = st.radio("Getting:", ["Better", "Worse", "Same"])
-    data["severity"] = st.slider("Severity (0–10)", 0, 10, 5)
-    data["makes_better"] = st.multiselect("Helps relieve symptoms:", ["Rest", "Medication", "Heat/Ice", "Nothing"])
-    data["makes_worse"] = st.multiselect("Worsens symptoms:", ["Movement", "Deep breath", "Meals", "Stress", "Nothing"])
-    data["had_before"] = st.radio("Had this before?", ["Yes", "No"])
-    if data["had_before"] == "Yes":
-        data["how_often"] = st.text_input("If yes, how often?")
-    data["treatments_tried"] = st.text_input("Treatments tried so far")
-    return data
-
 # === SECTION 7: Sample Symptom Module – Sore Throat ===
 def sore_throat_module():
     st.subheader("🗣️ Sore Throat / Ear / Sinus Details")
@@ -150,6 +109,52 @@ def chest_pain_module():
     data["ankle_swelling"] = st.radio("Ankle swelling?", ["Yes", "No"])
     data["home_bp"] = st.text_input("Home BP readings (if known)")
     data["chest_pain_extra"] = st.text_area("Anything else about your chest pain?", max_chars=100)
+    return data
+
+
+# === SECTION 5: Chief Complaint Picker ===
+
+def chief_complaint_picker():
+    st.subheader("6. Chief Complaint(s)")
+    data = {}
+    data["chief_complaints"] = st.multiselect("Choose your concerns:", [
+        "Chest pain", "Shortness of breath", "Cough / Cold", "Sore throat / Ear / Sinus",
+        "Abdominal pain", "Headache / Dizziness", "Back / Joint pain", "Skin / Rash",
+        "Urine / Kidney", "Mood / Anxiety", "Child fever (<16)", "Eye / Vision",
+        "Sexual-health", "Early pregnancy", "Minor trauma / injury", "Palliative / End-of-life",
+        "Other", "Routine / Admin only"
+    ])
+    if "Other" in data["chief_complaints"]:
+        data["other_text"] = st.text_input("Describe other concern")
+    return data
+
+# 👇 Chief complaints picker
+complaints = chief_complaint_picker()
+inputs.update(complaints)
+
+# 👇 Conditional modules based on complaints
+complaint_list = [s.lower() for s in complaints.get("chief_complaints", [])]
+
+if "chest pain" in complaint_list:
+    inputs.update({"chest_pain": chest_pain_module()})
+
+if "sore throat / ear / sinus" in complaint_list:
+    inputs.update({"sore_throat": sore_throat_module()})
+    
+# === SECTION 6: Universal Symptom History ===
+def universal_history():
+    st.subheader("7. Symptom History")
+    data = {}
+    data["when_started"] = st.radio("When did it start?", ["Today", "1–3 d", "4–7 d", "1–4 wk", ">1 mo"])
+    data["onset"] = st.radio("Onset:", ["Sudden", "Gradual"])
+    data["change"] = st.radio("Getting:", ["Better", "Worse", "Same"])
+    data["severity"] = st.slider("Severity (0–10)", 0, 10, 5)
+    data["makes_better"] = st.multiselect("Helps relieve symptoms:", ["Rest", "Medication", "Heat/Ice", "Nothing"])
+    data["makes_worse"] = st.multiselect("Worsens symptoms:", ["Movement", "Deep breath", "Meals", "Stress", "Nothing"])
+    data["had_before"] = st.radio("Had this before?", ["Yes", "No"])
+    if data["had_before"] == "Yes":
+        data["how_often"] = st.text_input("If yes, how often?")
+    data["treatments_tried"] = st.text_input("Treatments tried so far")
     return data
 
 # === FORM RENDERING ===
