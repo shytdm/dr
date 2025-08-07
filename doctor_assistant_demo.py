@@ -1,6 +1,8 @@
 import streamlit as st
 import openai
 import os
+import datetime
+
 
 st.set_page_config(page_title="Doctor Assistant - Patient Intake", layout="centered")
 st.title("🩺 Doctor Assistant – Patient Intake Form")
@@ -13,7 +15,13 @@ def header_demographics():
     st.subheader("1. Header & Demographics")
     data = {}
     data["legal_name"] = st.text_input("Legal Name / MRN")
-    data["dob"] = st.date_input("Date of Birth")
+    today = datetime.date.today()
+    dob = st.date_input(
+    "Date of Birth",
+    value=today.replace(year=today.year - 25),  # Default to age ~25
+    min_value=today.replace(year=1900),         # Allow birthdates from 1900
+    max_value=today
+)
     data["sex_at_birth"] = st.radio("Sex at Birth", ["Male", "Female", "Intersex", "Prefer not to say"])
     data["pronouns"] = st.text_input("Pronouns (optional)")
     data["pregnant"] = st.radio("Pregnant?", ["Yes", "No", "N/A"])
