@@ -48,18 +48,34 @@ if st.button("📝 Generate Summary"):
         openai.api_key = st.secrets["OPENAI_API_KEY"]  # Replace with your key or set as env variable
 
         # Prompt generation
-        prompt = f"""
-        Patient Name: {name}
-        Doctor: {doctor}
-        Chief Complaint: {symptom}
-        Responses: {inputs}
+          prompt = f"""
+You are a virtual physician assistant reviewing a pre-visit questionnaire for a patient.
 
-        Please create a clinical summary with:
-        - History of Present Illness (HPI)
-        - Relevant Symptoms
-        - Possible Differential Diagnoses
-        - Recommended Next Steps
-        """
+Here are the details:
+
+Patient Name: {name}
+Doctor: {doctor}
+Age: {inputs.get("age", "N/A")}
+Smoker: {inputs.get("smoker", "N/A")}
+Chronic Illnesses: {', '.join(inputs.get("illnesses", []))}
+
+Chief Complaint: {symptom}
+
+Structured Symptom Data:
+{inputs}
+
+TASK:
+- Write a highly concise summary (max 150 words) for the physician
+- Highlight **red flags** clearly
+- Include 2–4 **differential diagnoses**
+- Mention key findings that support or refute each differential
+- List next **suggested diagnostic steps**
+- Suggest first-line treatment options if applicable
+- Bullet formatting preferred
+- Write as if for a physician, not a patient
+
+Avoid disclaimers. Focus on medical clarity and brevity.
+"""
 
         # Call OpenAI API
         with st.spinner("Summarizing..."):
