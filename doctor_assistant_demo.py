@@ -111,8 +111,6 @@ if st.button("📝 Generate Summary"):
         st.warning("Please enter your name and select a main symptom.")
     else:
     openai.api_key = st.secrets["OPENAI_API_KEY"] # Replace with your key or set as env variable
-        # Prompt generation
-
     prompt = f"""
     
     You are a virtual physician assistant reviewing a pre-visit questionnaire for a patient.
@@ -137,7 +135,7 @@ if st.button("📝 Generate Summary"):
     - Write as if for a physician, not a patient
     
     Avoid disclaimers. Focus on medical clarity and brevity.
-"""
+    """
 
         # Call OpenAI API
         with st.spinner("Summarizing..."):
