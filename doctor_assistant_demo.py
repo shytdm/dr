@@ -110,36 +110,33 @@ if st.button("📝 Generate Summary"):
     if not name or symptom == "Select...":
         st.warning("Please enter your name and select a main symptom.")
     else:
-        openai.api_key = st.secrets["OPENAI_API_KEY"]  # Replace with your key or set as env variable
-
+    openai.api_key = st.secrets["OPENAI_API_KEY"] # Replace with your key or set as env variable
         # Prompt generation
-          prompt = f"""
-You are a virtual physician assistant reviewing a pre-visit questionnaire for a patient.
 
-Here are the details:
-
-Patient Name: {name}
-Doctor: {doctor}
-Age: {inputs.get("age", "N/A")}
-Smoker: {inputs.get("smoker", "N/A")}
-Chronic Illnesses: {', '.join(inputs.get("illnesses", []))}
-
-Chief Complaint: {symptom}
-
-Structured Symptom Data:
-{inputs}
-
-TASK:
-- Write a highly concise summary (max 150 words) for the physician
-- Highlight **red flags** clearly
-- Include 2–4 **differential diagnoses**
-- Mention key findings that support or refute each differential
-- List next **suggested diagnostic steps**
-- Suggest first-line treatment options if applicable
-- Bullet formatting preferred
-- Write as if for a physician, not a patient
-
-Avoid disclaimers. Focus on medical clarity and brevity.
+    prompt = f"""
+    
+    You are a virtual physician assistant reviewing a pre-visit questionnaire for a patient.
+    Here are the details:
+    Patient Name: {name}
+    Doctor: {doctor}
+    Age: {inputs.get("age", "N/A")}
+    Smoker: {inputs.get("smoker", "N/A")}
+    Chronic Illnesses: {', '.join(inputs.get("illnesses", []))}
+    
+    Chief Complaint: {symptom}
+    
+    Structured Symptom Data: {inputs} 
+    TASK:
+    - Write a highly concise summary (max 150 words) for the physician
+    - Highlight **red flags** clearly
+    - Include 2–4 **differential diagnoses**
+    - Mention key findings that support or refute each differential
+    - List next **suggested diagnostic steps**
+    - Suggest first-line treatment options if applicable
+    - Bullet formatting preferred
+    - Write as if for a physician, not a patient
+    
+    Avoid disclaimers. Focus on medical clarity and brevity.
 """
 
         # Call OpenAI API
