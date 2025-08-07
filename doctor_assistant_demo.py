@@ -3,7 +3,7 @@ import openai
 import os
 import datetime
 
-
+# === PAGE SETUP ===
 st.set_page_config(page_title="Doctor Assistant - Patient Intake", layout="centered")
 st.title("🩺 Doctor Assistant – Patient Intake Form")
 st.markdown("Please complete the form below. Your doctor will receive a structured summary.")
@@ -16,12 +16,9 @@ def header_demographics():
     data = {}
     data["legal_name"] = st.text_input("Legal Name / MRN")
     today = datetime.date.today()
-    dob = st.date_input(
-    "Date of Birth",
-    value=today.replace(year=today.year - 25),  # Default to age ~25
-    min_value=today.replace(year=1900),         # Allow birthdates from 1900
-    max_value=today
-)
+    dob = st.date_input("Date of Birth", value=today.replace(year=today.year - 25),
+                        min_value=today.replace(year=1900), max_value=today)
+    data["dob"] = str(dob)
     data["sex_at_birth"] = st.radio("Sex at Birth", ["Male", "Female", "Intersex", "Prefer not to say"])
     data["pronouns"] = st.text_input("Pronouns (optional)")
     data["pregnant"] = st.radio("Pregnant?", ["Yes", "No", "N/A"])
@@ -41,7 +38,7 @@ def long_term_conditions():
         ])
     }
 
-# === SECTION 2: Medication & Allergies ===
+# === SECTION 2: Medications & Allergies ===
 def meds_allergies():
     st.subheader("3. Medications & Allergies")
     data = {}
@@ -80,20 +77,38 @@ def red_flag_gate():
         ])
     }
 
-# === SECTION 7: Sample Symptom Module – Sore Throat ===
-def sore_throat_module():
-    st.subheader("🗣️ Sore Throat / Ear / Sinus Details")
+# === SECTION 5: Chief Complaint Picker ===
+def chief_complaint_picker():
+    st.subheader("6. Chief Complaint(s)")
     data = {}
-    data["fever"] = st.radio("Fever?", ["Yes", "No"])
-    data["difficulty_swallowing"] = st.radio("Hard to swallow liquids?", ["Yes", "No"])
-    data["drooling"] = st.radio("Drooling or stridor?", ["Yes", "No"])
-    data["muffled_voice"] = st.radio("Muffled 'hot-potato' voice?", ["Yes", "No"])
-    data["ear_pain"] = st.radio("Ear pain?", ["Yes", "No"])
-    data["tonsil_pus"] = st.radio("White patches or pus on tonsils?", ["Yes", "No"])
-    data["nasal_block_10d"] = st.radio("Nasal block >10 days?", ["Yes", "No"])
-    data["runny_nose_cough"] = st.radio("Cold-like symptoms?", ["Yes", "No"])
-    data["extra"] = st.text_area("Anything else you'd like to add?", max_chars=100)
+    data["chief_complaints"] = st.multiselect("Choose your concerns:", [
+        "Chest pain", "Shortness of breath", "Cough / Cold", "Sore throat / Ear / Sinus",
+        "Abdominal pain", "Headache / Dizziness", "Back / Joint pain", "Skin / Rash",
+        "Urine / Kidney", "Mood / Anxiety", "Child fever (<16)", "Eye / Vision",
+        "Sexual-health", "Early pregnancy", "Minor trauma / injury", "Palliative / End-of-life",
+        "Other", "Routine / Admin only"
+    ])
+    if "Other" in data["chief_complaints"]:
+        data["other_text"] = st.text_input("Describe other concern")
     return data
+
+# === SECTION 6: Universal Symptom History ===
+def universal_history():
+    st.subheader("7. Symptom History")
+    data = {}
+    data["when_started"] = st.radio("When did it start?", ["Today", "1–3 d", "4–7 d", "1–4 wk", ">1 mo"])
+    data["onset"] = st.radio("Onset:", ["Sudden", "Gradual"])
+    data["change"] = st.radio("Getting:", ["Better", "Worse", "Same"])
+    data["severity"] = st.slider("Severity (0–10)", 0, 10, 5)
+    data["makes_better"] = st.multiselect("Helps relieve symptoms:", ["Rest", "Medication", "Heat/Ice", "Nothing"])
+    data["makes_worse"] = st.multiselect("Worsens symptoms:", ["Movement", "Deep breath", "Meals", "Stress", "Nothing"])
+    data["had_before"] = st.radio("Had this before?", ["Yes", "No"])
+    if data["had_before"] == "Yes":
+        data["how_often"] = st.text_input("If yes, how often?")
+    data["treatments_tried"] = st.text_input("Treatments tried so far")
+    return data
+
+# === SECTION 7a: Chest Pain Module ===
 def chest_pain_module():
     st.subheader("❤️ Chest Pain Details")
     data = {}
@@ -111,50 +126,19 @@ def chest_pain_module():
     data["chest_pain_extra"] = st.text_area("Anything else about your chest pain?", max_chars=100)
     return data
 
-
-# === SECTION 5: Chief Complaint Picker ===
-
-def chief_complaint_picker():
-    st.subheader("6. Chief Complaint(s)")
+# === SECTION 7b: Sore Throat Module ===
+def sore_throat_module():
+    st.subheader("🗣️ Sore Throat / Ear / Sinus Details")
     data = {}
-    data["chief_complaints"] = st.multiselect("Choose your concerns:", [
-        "Chest pain", "Shortness of breath", "Cough / Cold", "Sore throat / Ear / Sinus",
-        "Abdominal pain", "Headache / Dizziness", "Back / Joint pain", "Skin / Rash",
-        "Urine / Kidney", "Mood / Anxiety", "Child fever (<16)", "Eye / Vision",
-        "Sexual-health", "Early pregnancy", "Minor trauma / injury", "Palliative / End-of-life",
-        "Other", "Routine / Admin only"
-    ])
-    if "Other" in data["chief_complaints"]:
-        data["other_text"] = st.text_input("Describe other concern")
-    return data
-
-# 👇 Chief complaints picker
-complaints = chief_complaint_picker()
-inputs.update(complaints)
-
-# 👇 Conditional modules based on complaints
-complaint_list = [s.lower() for s in complaints.get("chief_complaints", [])]
-
-if "chest pain" in complaint_list:
-    inputs.update({"chest_pain": chest_pain_module()})
-
-if "sore throat / ear / sinus" in complaint_list:
-    inputs.update({"sore_throat": sore_throat_module()})
-    
-# === SECTION 6: Universal Symptom History ===
-def universal_history():
-    st.subheader("7. Symptom History")
-    data = {}
-    data["when_started"] = st.radio("When did it start?", ["Today", "1–3 d", "4–7 d", "1–4 wk", ">1 mo"])
-    data["onset"] = st.radio("Onset:", ["Sudden", "Gradual"])
-    data["change"] = st.radio("Getting:", ["Better", "Worse", "Same"])
-    data["severity"] = st.slider("Severity (0–10)", 0, 10, 5)
-    data["makes_better"] = st.multiselect("Helps relieve symptoms:", ["Rest", "Medication", "Heat/Ice", "Nothing"])
-    data["makes_worse"] = st.multiselect("Worsens symptoms:", ["Movement", "Deep breath", "Meals", "Stress", "Nothing"])
-    data["had_before"] = st.radio("Had this before?", ["Yes", "No"])
-    if data["had_before"] == "Yes":
-        data["how_often"] = st.text_input("If yes, how often?")
-    data["treatments_tried"] = st.text_input("Treatments tried so far")
+    data["fever"] = st.radio("Fever?", ["Yes", "No"])
+    data["difficulty_swallowing"] = st.radio("Hard to swallow liquids?", ["Yes", "No"])
+    data["drooling"] = st.radio("Drooling or stridor?", ["Yes", "No"])
+    data["muffled_voice"] = st.radio("Muffled 'hot-potato' voice?", ["Yes", "No"])
+    data["ear_pain"] = st.radio("Ear pain?", ["Yes", "No"])
+    data["tonsil_pus"] = st.radio("White patches or pus on tonsils?", ["Yes", "No"])
+    data["nasal_block_10d"] = st.radio("Nasal block >10 days?", ["Yes", "No"])
+    data["runny_nose_cough"] = st.radio("Cold-like symptoms?", ["Yes", "No"])
+    data["extra"] = st.text_area("Anything else you'd like to add?", max_chars=100)
     return data
 
 # === FORM RENDERING ===
@@ -163,15 +147,20 @@ inputs.update(long_term_conditions())
 inputs.update(meds_allergies())
 inputs.update(lifestyle())
 inputs.update(red_flag_gate())
+
+# 👇 Chief complaints & modules
 complaints = chief_complaint_picker()
 inputs.update(complaints)
 inputs.update(universal_history())
 
-# === CONDITIONAL SYMPTOM MODULES ===
-if "Sore throat / Ear / Sinus" in complaints.get("chief_complaints", []):
-    inputs.update(sore_throat_module())
+# 👇 Conditional symptom modules
+complaint_list = [s.lower() for s in complaints.get("chief_complaints", [])]
+if "chest pain" in complaint_list:
+    inputs.update({"chest_pain": chest_pain_module()})
+if "sore throat / ear / sinus" in complaint_list:
+    inputs.update({"sore_throat": sore_throat_module()})
 
-# === GPT SUMMARY ===
+# === GPT SUMMARY GENERATION ===
 if st.button("📝 Generate Summary"):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
     prompt = f"""
@@ -197,7 +186,6 @@ if st.button("📝 Generate Summary"):
     - Recommend next steps and first-line treatment
     - Use bullet points and medical clarity. No disclaimers.
     """
-
     with st.spinner("Generating doctor summary..."):
         try:
             response = openai.ChatCompletion.create(
@@ -210,4 +198,5 @@ if st.button("📝 Generate Summary"):
             st.write(summary)
         except Exception as e:
             st.error(f"OpenAI Error: {e}")
+
 
