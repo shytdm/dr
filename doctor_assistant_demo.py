@@ -13,12 +13,13 @@ st.markdown("Please fill out the form below. Your responses will be summarized a
 # === PATIENT INFO ===
 name = st.text_input("Your Full Name")
 doctor = st.text_input("Doctor's Name")
-symptom = st.selectbox("Main Symptom", ["Select...", "Fever", "Chest Pain", "Cough", "Headache" , "Sore Throat"])
+symptom = st.selectbox("Main Symptom", ["Select...", "Fever", "Chest Pain", "Cough", "Headache", "Sore Throat"])
 
 # === SYMPTOM FOLLOW-UP LOGIC ===
 inputs = {}
+
 if symptom == "Sore Throat":
-     st.subheader("A. Your Details")
+    st.subheader("A. Your Details")
     age = st.number_input("Age", min_value=0, max_value=120, step=1)
     smoker = st.radio("Smoker?", ["Yes", "No"])
     illnesses = st.multiselect(
@@ -78,7 +79,8 @@ if symptom == "Sore Throat":
         med2: med2_helped
     }
     inputs["extra_notes"] = extra_notes
-if symptom == "Fever":
+
+elif symptom == "Fever":
     inputs["fever_duration"] = st.text_input("How many days have you had the fever?")
     inputs["fever_temperature"] = st.text_input("What was your highest temperature?")
     inputs["has_chills"] = st.radio("Do you have chills?", ["Yes", "No"])
@@ -100,6 +102,7 @@ elif symptom == "Headache":
     inputs["headache_location"] = st.text_input("Where does it hurt?")
     inputs["sensitivity"] = st.radio("Do you have sensitivity to light or sound?", ["Yes", "No"])
     inputs["nausea"] = st.radio("Do you feel nauseated?", ["Yes", "No"])
+
 
 
 # === SUBMISSION & SUMMARY ===
